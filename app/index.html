@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JWT</title>
+</head>
+<body>
+用户名<input id="username">
+密码<input id="password" type="password">
+<button id="login">登陆</button>
+<button id="loginOut">退出</button>
+<button id="getInfo">getInfo</button>
+<script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+<script>
+    $(function () {
+        jQuery.ajaxSetup({
+            beforeSend: function beforeSend(request) {
+                request.setRequestHeader('Authorization', localStorage.getItem('access_token'));
+            }
+        })
+        $("#login").click(function () {
+            var form = {
+                username: $('#username').val(),
+                password: $("#password").val()
+            };
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json",
+                url: 'http://localhost:3000/login',
+                data: JSON.stringify(form),
+                dataType: 'json',
+                success: function (data) {
+                    if (data.success) {
+                        localStorage.setItem('access_token', data.token)
+                    }
+                }
+            })
+        });
+        $('#getInfo').click(function () {
+            $.get('http://localhost:3000/userinfo', function (data) {
+                console.log(data)
+            }).fail(function (data) {
+                console.log('error', data);
+            });
+        });
+
+        $("#loginOut").click(function () {
+            $.get('http://localhost:3000/loginOut', function (data) {
+                if (data.success) {
+                    localStorage.removeItem('access_token');
+                    console.log('退出成功');
+                }
+            })
+        })
+
+    })
+</script>
+</body>
+</html>
